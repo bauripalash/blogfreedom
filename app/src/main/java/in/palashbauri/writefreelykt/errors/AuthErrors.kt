@@ -10,4 +10,4 @@ class AuthTooManyTries(msg: String = "Too many login tries") : Exception(msg)
 
 //Logout
 
-class LogoutMissingToken(msg : String = "Token missing; Internal error"): Exception(msg)
+class LogoutMissingToken(msg: String = "Token missing; Internal error") : Exception(msg)

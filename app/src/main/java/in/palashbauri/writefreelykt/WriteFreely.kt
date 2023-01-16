@@ -5,7 +5,6 @@ import `in`.palashbauri.writefreelykt.jsonobjs.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonBuilder
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,6 +18,7 @@ class WriteFreely {
     var AuthKey = ""
     var Username = ""
 
+
     fun Logout(): Boolean {
 
         val client = OkHttpClient()
@@ -30,13 +30,13 @@ class WriteFreely {
             .build()
         client.newCall(req).execute().use { resp ->
 
-            when(resp.code){
-                204-> return true
+            when (resp.code) {
+                204 -> return true
                 404 -> throw InvalidToken()
                 400 -> throw LogoutMissingToken()
             }
 
-            if (!resp.isSuccessful){
+            if (!resp.isSuccessful) {
                 throw ResponseFailed()
             }
 
@@ -46,18 +46,19 @@ class WriteFreely {
         }
     }
 
-    fun GetAllUserPosts() : Array<PostObj> {
+    fun GetAllUserPosts(): Array<PostObj> {
         val apiUrl = Url + Endpoints.GetUserAllPosts
-        val JsonBuilder = Json{ ignoreUnknownKeys = true }
+        val JsonBuilder = Json { ignoreUnknownKeys = true }
         val client = OkHttpClient()
         val request = Request.Builder()
-                    .url(apiUrl)
-            .header("Authorization" , "Token $AuthKey")
-            .header("Content-Type" , "application/json")
+            .url(apiUrl)
+            .header("Authorization", "Token $AuthKey")
+            .header("Content-Type", "application/json")
             .get()
             .build()
 
         client.newCall(request).execute().use { resp ->
+            //println(resp.code)
             if (!resp.isSuccessful) throw ResponseFailed()
             if (resp.code == 401) throw InvalidToken()
             if (resp.body == null) throw EmptyResponse()
@@ -67,15 +68,55 @@ class WriteFreely {
         }
     }
 
+    fun RenderMarkdown(body : String , collection : String = "") : String{
+        val apiUrl = Url + Endpoints.RenderMd
+        val JsonBuilder = Json{ ignoreUnknownKeys = true }
+        val client = OkHttpClient()
+        val reqObj = SendToRenderMarkdownObj(raw_body = body , collection_url = collection)
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("Authorization", "Token $AuthKey")
+            .header("Content-Type", "application/json")
+            .post(JsonBuilder.encodeToString(reqObj).toRequestBody(MEDIA_TYPE_JSON))
+            .build()
+
+        client.newCall(request).execute().use { resp ->
+            if (!resp.isSuccessful || resp.code == 400) throw ResponseFailed()
+            if (resp.body == null) throw EmptyResponse()
+            val respObj = JsonBuilder.decodeFromString<RenderMarkdownObj>(resp.body!!.string())
+            return respObj.data.body
+        }
+
+    }
+
+    fun PublishPost(p: PublishPostObj): RetrivedSinglePostObj {
+        val apiUrl = Url + Endpoints.CreatePost
+
+        val JsonBuilder = Json { ignoreUnknownKeys = true }
+        val reqBody = JsonBuilder.encodeToString(p)
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("Authorization", "Token $AuthKey")
+            .header("Content-Type", "application/json")
+            .post(reqBody.toRequestBody(contentType = MEDIA_TYPE_JSON))
+            .build()
+
+        client.newCall(request).execute().use { resp ->
+            if (!resp.isSuccessful) throw ResponseFailed()
+            if (resp.body == null) throw EmptyResponse()
+
+            return JsonBuilder.decodeFromString(resp.body!!.string())
+
+        }
+    }
 
 
 }
 
 
-
-
-fun WfLogin(url: String, username: String, password: String): WriteFreely {
-    var result = WriteFreely()
+fun wfLogin(url: String, username: String, password: String): WriteFreely {
+    val result = WriteFreely()
     result.Url = url
     result.Username = username
     val JsonBuilder = Json { ignoreUnknownKeys = true }
@@ -150,12 +191,29 @@ fun main() {
     val ps = "password"
     val url = "https://notes.palashbauri.in"
 
+    /*
     try {
-        val a = WfLogin(url, un, ps)
+        val a = wfLogin(url, un, ps)
         println(a.AuthKey)
     } catch (e: Exception) {
         println(e)
     }
+
+     */
+
+    val wf = WriteFreely()
+    wf.Url = url
+    wf.AuthKey = System.getenv("DAG") ?: ""
+
+
+
+    for (item in wf.GetAllUserPosts()) {
+        println(item.slug)
+        println(item.views)
+    }
+
+    //println(wf.RenderMarkdown("# Hello world"))
+
 
 }
 

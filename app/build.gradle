@@ -4,6 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
+
+
 android {
     namespace 'in.palashbauri.blogfreedom'
     compileSdk 33
@@ -19,6 +21,10 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+
+
+
     }
 
     buildTypes {

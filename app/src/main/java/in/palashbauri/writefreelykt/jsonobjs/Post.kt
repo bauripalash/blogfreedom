@@ -4,10 +4,18 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class RetrivedSinglePostObj(val code : Int , val data : PostObj)
+data class RetrivedSinglePostObj(val code: Int, val data: PostObj)
 
 @Serializable
-data class AllPostsObj(val code : Int , val data : Array<PostObj>) {
+data class RenderMarkdownDataObj(val body : String)
+@Serializable
+data class RenderMarkdownObj(val code : Int , val data: RenderMarkdownDataObj)
+
+@Serializable
+data class SendToRenderMarkdownObj(val raw_body : String , val collection_url : String)
+
+@Serializable
+data class AllPostsObj(val code: Int, val data: Array<PostObj>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -26,21 +34,23 @@ data class AllPostsObj(val code : Int , val data : Array<PostObj>) {
         return result
     }
 }
-@Serializable
-data class PostObj(val id : String ,
-                val slug : String ,
-                val appearance : String,
-                val rtl : Boolean,
-                val language : String,
-                val created : String,
-                val updated : String,
-                val title : String ,
-                val body : String,
-                val tags : Array<String>,
-                val views : Int,
-                val collection : BlogCollection,
 
-) {
+@Serializable
+data class PostObj(
+    val id: String,
+    val slug: String,
+    val appearance: String,
+    val rtl: Boolean,
+    val language: String,
+    val created: String,
+    val updated: String,
+    val title: String,
+    val body: String,
+    val tags: Array<String>,
+    val views: Int,
+    val collection: BlogCollection,
+
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -81,20 +91,34 @@ data class PostObj(val id : String ,
 }
 
 @Serializable
-data class UpdatePostObj(val token : String,
-                         val body : String,
-                         val title : String,
-                         val font : String,
-                         val lang : String,
-                         val rtl : Boolean
+data class UpdatePostObj(
+    val token: String,
+    val body: String,
+    val title: String,
+    val font: String,
+    val lang: String,
+    val rtl: Boolean
 )
 
 @Serializable
-data class UnpublishPostObj(val token : String,
-                            val body : String = ""
+data class PublishPostObj(
+    val body: String,
+    val title: String,
+    val font: String,
+    val lang: String,
+    val rtl: Boolean,
+    val created: String,
+    // Cross post not yet implemented
 )
 
 @Serializable
-data class ClaimPostObj(val id : String,
-                        val token : String
+data class UnpublishPostObj(
+    val token: String,
+    val body: String = ""
+)
+
+@Serializable
+data class ClaimPostObj(
+    val id: String,
+    val token: String
 )
