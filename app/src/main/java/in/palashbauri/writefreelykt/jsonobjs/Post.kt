@@ -7,12 +7,13 @@ import kotlinx.serialization.Serializable
 data class RetrivedSinglePostObj(val code: Int, val data: PostObj)
 
 @Serializable
-data class RenderMarkdownDataObj(val body : String)
-@Serializable
-data class RenderMarkdownObj(val code : Int , val data: RenderMarkdownDataObj)
+data class RenderMarkdownDataObj(val body: String)
 
 @Serializable
-data class SendToRenderMarkdownObj(val raw_body : String , val collection_url : String)
+data class RenderMarkdownObj(val code: Int, val data: RenderMarkdownDataObj)
+
+@Serializable
+data class SendToRenderMarkdownObj(val raw_body: String, val collection_url: String)
 
 @Serializable
 data class AllPostsObj(val code: Int, val data: Array<PostObj>) {
